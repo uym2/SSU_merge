@@ -1,5 +1,4 @@
 from sequence_lib import read_fasta
-from rand_aln_prob import rand_Aln
 from math import log
 import subprocess
 
