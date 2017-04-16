@@ -34,7 +34,7 @@ Simple classes for reading and manipulating sequence data matrices
 
 import re, os
 #from pasta import get_logger, log_exception, MESSENGER, TIMING_LOG
-#from pasta.filemgr import open_with_intermediates
+from filemgr import open_with_intermediates
 
 from dendropy.dataio import register_reader       
 
@@ -76,8 +76,9 @@ def read_fasta(src):
             name = i[1:].strip()
         else:
             seq = ''.join(i.strip().upper().split())
-            if not is_sequence_legal(seq):
-                raise Exception("Error: illegal characeters in sequence at line %d" % line_number)
+	    # CC commented out (because this function depends on other parts of PASTA, which are not adopted here)
+            #if not is_sequence_legal(seq):
+            #    raise Exception("Error: illegal characeters in sequence at line %d" % line_number)
             seq_list.append(seq)
     if name:
         yield name, ''.join(seq_list)
@@ -1210,16 +1211,16 @@ class CompactAlignment(dict,object):
         global _T_ID
         _T_ID += 1
         ID = _T_ID    
-        TIMING_LOG.info("transitivitymerge (%d) started" %ID )    
+        #TIMING_LOG.info("transitivitymerge (%d) started" %ID )    
         mykeys = set(self.keys())
         herkeys = set(she.keys())
-        _LOG.debug("Transitive Merge Started. ID:%d - Rows: %d,%d" %(ID,len(mykeys),len(herkeys)))    
+        #_LOG.debug("Transitive Merge Started. ID:%d - Rows: %d,%d" %(ID,len(mykeys),len(herkeys)))    
         shared = mykeys.intersection(herkeys)
-        _LOG.debug("Shared seq: %d" %(len(shared)))        
+        #_LOG.debug("Shared seq: %d" %(len(shared)))        
         onlyhers = herkeys - shared
         me_ins = self.get_insertion_columns(shared)
         she_ins = she.get_insertion_columns(shared)
-        _LOG.debug("Insertion Columns: %d,%d" %(len(me_ins),len(she_ins)))
+        #_LOG.debug("Insertion Columns: %d,%d" %(len(me_ins),len(she_ins)))
         
         memap=[]
         shemap=[]
@@ -1253,8 +1254,8 @@ class CompactAlignment(dict,object):
             she[k].pos = [shemap[p] for p in she[k].pos]
             self[k] = she[k]        
             
-        TIMING_LOG.info("transitivitymerge (%d) finished" %ID )
-        _LOG.debug("Transitive Merge Finished. ID:%d; cols after: %d" %(ID,self.colcount))
+        #TIMING_LOG.info("transitivitymerge (%d) finished" %ID )
+        #_LOG.debug("Transitive Merge Finished. ID:%d; cols after: %d" %(ID,self.colcount))
 
     def mask_gapy_sites(self,minimum_seq_requirement):                
         _LOG.debug("Masking alignment sites with fewer than %d characters from alignment with %d columns" 
