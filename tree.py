@@ -21,8 +21,7 @@
 
 from dendropy import Tree, Taxon, treecalc
 from dendropy import DataSet as Dataset
-#from dendropy.datamodel.treemodel import _convert_node_to_root_polytomy as convert_node_to_root_polytomy
-from dendropy import convert_node_to_root_polytomy
+from dendropy.datamodel.treemodel import _convert_node_to_root_polytomy as convert_node_to_root_polytomy
 from sepp import get_logger, sortByValue
 from sepp.alignment import get_pdistance
 import cStringIO
@@ -41,7 +40,7 @@ def write_newick_node(node, out):
             write_newick_node(child, out)
         out.write(')')
 
-    out.write(node.get_node_str())
+    out.write(node._get_node_token())
     e = node.edge
     if e:
         sel = e.length
@@ -57,16 +56,9 @@ def write_newick_node(node, out):
 
 class PhylogeneticTree(object):
     """Data structure to store phylogenetic tree, wrapping dendropy.Tree."""
-    def __init__(self, dendropy_tree=None, treepath=None, schema='newick'):
-	if dendropy_tree:
-		self._tree = dendropy_tree
-		self.n_leaves = self.count_leaves()
-	elif treepath:
-		self.read_tree_from_file(treepath,schema)
-	else:
-        	self._tree = Tree()
-		self.n_leaves = self.count_leaves()
-        #self.n_leaves = self.count_leaves()
+    def __init__(self, dendropy_tree):
+        self._tree = dendropy_tree
+        self.n_leaves = self.count_leaves()
         self._tree.seed_node.edge.tail_node = None
         self._tree.seed_node.edge.length = None                  
 
@@ -192,7 +184,7 @@ class PhylogeneticTree(object):
         n = self.n_leaves
         potentially_deleted_nd = e.tail_node
         grandparent_nd = potentially_deleted_nd.parent_node
-        e.tail_node.remove_child(nr, suppress_deg_two=True)
+        e.tail_node.remove_child(nr, suppress_unifurcations=True)
 
         nr.edge.length = None
         nr.parent_node = None
@@ -232,7 +224,7 @@ class PhylogeneticTree(object):
 
     def compose_newick(self, labels = False):
         if not labels:
-            return self._tree.compose_newick()
+            return self._tree.as_string(schema="newick")
         else:
             stringIO = cStringIO.StringIO()
             write_newick_node(self._tree.seed_node, stringIO)
@@ -243,16 +235,14 @@ class PhylogeneticTree(object):
     def write_newick_to_path(self, path):
         tree_handle = open(path, "w")
         tree_handle.write(self.compose_newick())
-        tree_handle.write(";\n")
+        tree_handle.write("")
         tree_handle.close()
-	#self._tree.write(path=path,schema="newick")
         
     def read_tree_from_file(self, treefile, file_format):
-        #dataset = Dataset()
-        #dataset.read(open(treefile, 'rU'), schema=file_format)
-        #dendropy_tree = dataset.trees_blocks[0][0]
-        #self._tree = dendropy_tree
-	self._tree = Tree.get_from_path(treefile,file_format)
+        dataset = Dataset()
+        dataset.read(open(treefile, 'rU'), schema=file_format)
+        dendropy_tree = dataset.trees_blocks[0][0]
+        self._tree = dendropy_tree
         self.n_leaves = self.count_leaves()
         
         
@@ -345,7 +335,6 @@ def is_valid_tree(t):
     assert t and t
     rc = t.seed_node.child_nodes()
     num_children = len(rc)
-    print num_children
     if num_children == 0:
         return True
     if num_children == 1:
@@ -356,3 +345,4 @@ def is_valid_tree(t):
         #Bug?  NN
         assert((not rc[0].child_nodes()) and (not rc[0].child_nodes()))
     return True
+

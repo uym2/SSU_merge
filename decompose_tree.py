@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 
 from dendropy import Tree
-from sepp_tool.tree import PhylogeneticTree
+#from sepp_tool.tree import PhylogeneticTree
+from tree import PhylogeneticTree
 import sys
 from basic_utils import  trl_zero
 import os
@@ -14,8 +15,7 @@ if len(sys.argv) > 4:
 else:
 	m = None
 
-t = Tree()
-t.read_from_path(path,'newick')
+t = Tree.get_from_path(path,'newick')
 T = PhylogeneticTree(t)
 
 print('computing treeMap ... ')
