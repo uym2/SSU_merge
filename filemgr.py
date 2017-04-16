@@ -19,8 +19,8 @@ import re
 import tempfile
 import shutil
 from threading import Lock
-from pasta import get_logger
-_LOG = get_logger(__name__)
+#from pasta import get_logger
+#_LOG = get_logger(__name__)
 
 _ILLEGAL_FILENAME_PATTERN = re.compile(r'[^-_a-zA-Z0-9.]')
 def get_safe_filename(filename):
