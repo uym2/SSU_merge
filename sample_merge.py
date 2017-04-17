@@ -11,11 +11,8 @@ if len(argv) > 3:
 else:	
 	outfile = None
 
-#taxon_name1, aln1 = read_fasta(aln1_file)
-#taxon_name2, aln2 = read_fasta(aln2_file)
-
 MGR = smplMerger(aln1_file,aln2_file)
-score,cons1,cons2 = MGR.smpl_merge(nsmpl=10,n1=50,n2=50)
+score,cons1,cons2 = MGR.smpl_merge(nsmpl=20)
 
 if outfile:
 	fout = open(outfile,'w')

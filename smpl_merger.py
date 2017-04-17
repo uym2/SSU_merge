@@ -53,12 +53,12 @@ class smplMerger:
 			#print(scoring[(i1,j1)])
 					
 
-	def sub_merge(self,n1=2000,n2=2000):
+	def sub_merge(self,n1,n2):
 		# randomly sample sequences from aln1 and aln2
 		subprocess.check_call(["python","utils/sampling.py",self.alnFile1,"temp1.fas",str(n1)])	
 		subprocess.check_call(["python","utils/sampling.py",self.alnFile2,"temp2.fas",str(n2)])	
 		# and call opal (or perhaps another merger) to merge them
-		subprocess.check_call(["java","opal_2.1.3/opal","--in","temp1.fas","--in2","temp2.fas","--out","temp.fas"])
+		subprocess.check_call(["java","-Xmx256M","-jar","opal_2.1.3/Opal.jar","--in","temp1.fas","--in2","temp2.fas","--out","temp.fas"])
 		subprocess.check_call(["utils/stdFAS.py","temp.fas","merged.fas"])
 		
 		name1,sub_aln1 = read_fasta("temp1.fas")
@@ -72,22 +72,16 @@ class smplMerger:
 		
 		return sub_aln1, sub_aln2, sub_merged
 
-	def get_score(self,nsmpl=100,n1=2000,n2=2000):
+	def get_score(self,nsmpl,n1,n2):
 		scoring = {}
 		for i in range(nsmpl):
 			print(i)
-			sub_aln1,sub_aln2,sub_merged = self.sub_merge(n1=n1,n2=n2)
+			sub_aln1,sub_aln2,sub_merged = self.sub_merge(n1,n2)
 			self.sub_score(sub_aln1,sub_aln2,sub_merged,scoring)
-			#print(scoring)
 		
-		#print(scoring)
 		return scoring
 
 	def merge(self,scoring):
-		#name1,aln1 = read_fasta(self.alnFile1)
-		#name2,aln2 = read_fasta(self.alnFile2)
-
-
 		n = len(self.aln1[0])
 		m = len(self.aln2[0])
 
@@ -103,11 +97,6 @@ class smplMerger:
 
 		for j in range(1,n+1):
 			for i in range(1,m+1):
-				#TP = TP_score[(j-1,i-1)] if (j-1,i-1) in TP_score else default
-				#ms  = aln_score[j-1][i-1] + (2*w-1)*TP - (1-w)*R1[j-1]*R2[i-1]
-				#g1 = aln_score[j][i-1] + ins_score
-				#g2 = aln_score[j-1][i] + del_score
-
 				ms = aln_score[j-1][i-1] + scoring[(j-1,i-1)] if (j-1,i-1) in scoring else aln_score[j-1][i-1] 
 				g1 = aln_score[j][i-1] + scoring[(-1,i-1)] if (-1,i-1) in scoring else aln_score[j][i-1]
 				g2 = aln_score[j-1][i] + scoring[(j-1,-1)] if (j-1,-1) in scoring else aln_score[j-1][i]
@@ -150,6 +139,8 @@ class smplMerger:
 				j -= 1
 		return aln_score[n][m], M1, M2		
 
-	def smpl_merge(self,nsmpl=100,n1=2000,n2=2000):
-		scoring = self.get_score(nsmpl=nsmpl,n1=n1,n2=n2)
+	def smpl_merge(self,nsmpl=100,maxN=2000,r1=0.1,r2=0.1):
+		n1 = min(maxN,int(len(self.aln1)*r1))
+		n2 = min(maxN,int(len(self.aln2)*r2))
+		scoring = self.get_score(nsmpl,n1,n2)
 		return self.merge(scoring)
