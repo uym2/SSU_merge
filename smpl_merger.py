@@ -55,11 +55,11 @@ class smplMerger:
 
 	def sub_merge(self,n1=2000,n2=2000):
 		# randomly sample sequences from aln1 and aln2
-		subprocess.check_call(["python","/home/uym2/my_gits/myTools/sampling.py",self.alnFile1,"temp1.fas",str(n1)])	
-		subprocess.check_call(["python","/home/uym2/my_gits/myTools/sampling.py",self.alnFile2,"temp2.fas",str(n2)])	
+		subprocess.check_call(["python","utils/sampling.py",self.alnFile1,"temp1.fas",str(n1)])	
+		subprocess.check_call(["python","utils/sampling.py",self.alnFile2,"temp2.fas",str(n2)])	
 		# and call opal (or perhaps another merger) to merge them
-		subprocess.check_call(["/home/uym2/Packages_N_Libraries/opal_2.1.3/opal","--in","temp1.fas","--in2","temp2.fas","--out","temp.fas"])
-		subprocess.check_call(["/home/uym2/my_gits/myTools/stdFAS.py","temp.fas","merged.fas"])
+		subprocess.check_call(["java","opal_2.1.3/opal","--in","temp1.fas","--in2","temp2.fas","--out","temp.fas"])
+		subprocess.check_call(["utils/stdFAS.py","temp.fas","merged.fas"])
 		
 		name1,sub_aln1 = read_fasta("temp1.fas")
 		name2,sub_aln2 = read_fasta("temp2.fas")
