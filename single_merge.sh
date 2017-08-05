@@ -8,7 +8,7 @@ sourcedir=`pwd`
 
 r1=0.1
 r2=0.1
-maxN=2000
+maxN=200
 
 s1=`mktemp`
 s2=`mktemp`
