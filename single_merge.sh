@@ -6,9 +6,9 @@ outpath=$3
 
 sourcedir=`pwd`
 
-r1=0.1
-r2=0.1
-maxN=200
+r1=0.01449275
+r2=1
+#maxN=200
 
 s1=`mktemp`
 s2=`mktemp`

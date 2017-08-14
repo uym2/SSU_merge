@@ -12,7 +12,7 @@ else:
 	outfile = None
 
 MGR = smplMerger(aln1_file,aln2_file)
-score,cons1,cons2 = MGR.smpl_merge(nsmpl=20)
+score,cons1,cons2 = MGR.smpl_merge(nsmpl=20,r1=0.1,r2=0.1)
 
 if outfile:
 	fout = open(outfile,'w')
