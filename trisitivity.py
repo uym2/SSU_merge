@@ -17,6 +17,7 @@ def trisitivity(spTree,directory):
 	for node in spTree.postorder_node_iter():
 		node.process=1
 		num_of_nodes= num_of_nodes+1
+		node.original=node.taxon.label if node is_leaf() else node.label
 	for node in spTree.postorder_node_iter():
 		if num_of_nodes==2:
 			node_lis=[]
@@ -27,7 +28,10 @@ def trisitivity(spTree,directory):
 			label2=directory+'/'+(node_lis[1].taxon.label if node_lis[1].is_leaf() else node_lis[1].label)+ '.fasta'
 			print(label1,label2)
 			aln_merge=directory+ '/' +(node_lis[0].taxon.label if node_lis[0].is_leaf() else node_lis[0].label) + (node_lis[1].taxon.label if node_lis[1].is_leaf() else node_lis[1].label)+ '.fasta'
-			subprocess.check_call(['java','-jar','/calab_data/mirarab/home/ziyang96/Tools/opal_2.1.3/Opal.jar','--in',label1,'--in2',label2,'--out',aln_merge])
+			try:
+				subprocess.check_call(['java','-jar','/calab_data/mirarab/home/ziyang96/Tools/opal_2.1.3/Opal.jar','--in',label1,'--in2',label2,'--out',aln_merge])
+			except:
+				subprocess.check_call(['python','sample_merge.py',label1,label2,aln_merge])
 			if node_lis[0].level()==0:
 				node_lis[0].label=(node_lis[0].taxon.label if node_lis[0].is_leaf() else node_lis[0].label) + (node_lis[1].taxon.label if node_lis[1].is_leaf() else node_lis[1].label)
 			else: 
@@ -59,7 +63,7 @@ def trisitivity(spTree,directory):
 					print(parent)
 					aln_merge=directory+'/'+ (children[0].taxon.label if children[0].is_leaf() else children[0].label) +(children[1].taxon.label if children[1].is_leaf() else children[1].label) + node.label + '.fasta'
 					node.label=(children[0].taxon.label if children[0].is_leaf() else children[0].label) + (children[1].taxon.label if children[1].is_leaf() else children[1].label) + node.label 
-					subprocess.check_call(['python','tri_merge_matrix.py',label1,label2,parent, aln_merge])
+					subprocess.check_call(['python','matching.py',label1,label2,parent, aln_merge])
 					children[0].process=0
 					children[1].process=0
 					num_of_nodes=num_of_nodes-2
@@ -80,7 +84,7 @@ def trisitivity(spTree,directory):
 					print(label,itself,parent)
 					aln_merge=directory+'/'+ (child1.taxon.label if child1.is_leaf() else child1.label)+node.label +node.parent_node.label+'.fasta'
 					node.parent_node.label=(child1.taxon.label if child1.is_leaf() else child1.label)+node.label +node.parent_node.label
-					subprocess.check_call(['python','tri_merge_matrix.py',label,itself,parent, aln_merge])
+					subprocess.check_call(['python','matching.py',label,itself,parent, aln_merge])
 					child1.process=0
 					node.process=0
 					num_of_nodes=num_of_nodes-2

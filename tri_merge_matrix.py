@@ -188,7 +188,7 @@ def tri_matrix(aln1,aln2,aln3):
     return dim1_matrix,dim2_matrix,dim3_matrix
     '''
 struct1=tri_matrix(aln1,aln2,aln3)
-print(struct1)
+#print(struct1)
 #print('finish constructing tri_matrix')
 #for i in range(len(v1)):
 #    print(v1[i],rep1[i])
@@ -223,7 +223,7 @@ def conservative_merge(struct):
             
     match_site=[] 
     i=0      
-    for site in range(1,max(c[0] for c in dat)+1):
+    for site in range(0,max(c[0] for c in dat)):
         if i <len(dat_3_no_0): 	
    	    if dat_3_no_0[i][0] == site:
             	
@@ -235,9 +235,9 @@ def conservative_merge(struct):
 	else :
 	    match_site.append([site,"-","-"])    
         
-    site=1
+    site=0
     i=0
-    while site<=max(c[1] for c in dat)+1:
+    while site<=max(c[1] for c in dat):
 	if i < len(match_site):
 	        if match_site[i][1]=='-':
 	            i=i+1
@@ -255,9 +255,9 @@ def conservative_merge(struct):
     #print(site)            
 
 
-    site=1
+    site=0
     i=0
-    while site<=max(c[2] for c in dat)+1:
+    while site<=max(c[2] for c in dat):
 	if i < len(match_site):
 	        if match_site[i][2]=='-':
 	            i=i+1
@@ -277,7 +277,7 @@ def conservative_merge(struct):
     seq2=[c[1] for c in match_site]
     seq3=[c[2] for c in match_site]
     return seq1,seq2,seq3
-'''
+
 sq1,sq2,sq3=conservative_merge(struct1)
 
 
@@ -305,5 +305,5 @@ for seq in name3:
         name.append(seq)
 
 write_fasta(newAln_file,name,new_aln)
-'''
+
 print('finish conservative merging')

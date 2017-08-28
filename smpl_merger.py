@@ -148,7 +148,7 @@ class smplMerger:
 	def smpl_merge(self,nsmpl=100,maxN=2000,r1=0.1,r2=0.1):
 		#n1 = min(maxN,int(len(self.aln1)*r1))
 		#n2 = min(maxN,int(len(self.aln2)*r2))
-		n1= min(maxN, len(self.aln1), 100)
-		n2= min(maxN, len(self.aln2), 100)
+		n1= min(maxN, int(len(self.aln1)*r1), 500)
+		n2= min(maxN, int(len(self.aln2)*r2), 500)
 		scoring = self.get_score(nsmpl,n1,n2)
 		return self.merge(scoring)
