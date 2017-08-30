@@ -6,6 +6,8 @@ from matching_lib import match_AB_BC, match_AB
 from sys import argv
 import numpy as np
 import subprocess
+from os.path import splitext, basename
+
 
 fileA = argv[1]
 fileB = argv[2]
@@ -13,26 +15,37 @@ fileC = argv[3]
 newAln_file = argv[4]
 
 
-fileAB = 'temp1'
+#fileA_name,ext = splitext(basename(fileA))
+#fileB_name,ext = splitext(basename(fileB))
+#fileC_name,ext = splitext(basename(fileC))
+
+#fileAB = 'temp1'
+fileAB = subprocess.check_output(['mktemp'])
 try:
         subprocess.check_call(["java","-jar","/calab_data/mirarab/home/ziyang96/Tools/opal_2.1.3/Opal.jar","--in",fileA,"--in2",fileB,"--out",fileAB])
 except:
         subprocess.check_call(['python','sample_merge.py',fileA,fileB,fileAB])
-fileBC = 'temp2'
+#fileBC = 'temp2'
+fileBC = subprocess.check_output(['mktemp'])
 try:
         subprocess.check_call(["java","-jar","/calab_data/mirarab/home/ziyang96/Tools/opal_2.1.3/Opal.jar","--in",fileB,"--in2",fileC,"--out",fileBC])
 except:
         subprocess.check_call(['python','sample_merge.py',fileB,fileC,fileBC])
 
-fileCA = 'temp3'
+fileCA = subprocess.check_output(['mktemp'])
+#fileCA = 'temp3'
 try:
         subprocess.check_call(["java","-jar","/calab_data/mirarab/home/ziyang96/Tools/opal_2.1.3/Opal.jar","--in",fileC,"--in2",fileA,"--out",fileCA])
 except:
         subprocess.check_call(['python','sample_merge.py',fileC,fileA,fileCA])
 
-fileAB_fix='temp4'
-fileBC_fix='temp5'
-fileCA_fix='temp6'
+#fileAB_fix='temp4'
+fileAB_fix = subprocess.check_output(['mktemp'])
+#fileBC_fix='temp5'
+fileBC_fix = subprocess.check_output(['mktemp'])
+#fileCA_fix='temp6'
+fileCA_fix = subprocess.check_output(['mktemp'])
+
 subprocess.check_call(['stdFAS.py', fileAB, fileAB_fix])
 subprocess.check_call(['stdFAS.py', fileCA, fileCA_fix])
 subprocess.check_call(['stdFAS.py', fileBC, fileBC_fix])
@@ -120,6 +133,7 @@ def dynamic_program(start, end, mapping):
     trace_back={}
 
     for i in range(0,end[0]-start[0]+1):
+	print(i)
         for j in range(0,end[1]-start[1]+1):
             for k in range(0,end[2]-start[2]+1):
                 if i+j+k>=0:
@@ -177,8 +191,8 @@ def dynamic_merge(mapping):
         if mapping[key]==3 and key[0]!=-1 and key[1]!=-1 and key[2]!=-1:
             matching.append(key)
     #matching.append((max1,max2,max3))
-    print(matching)
-    print(len(matching))
+    #print(matching)
+    #print(len(matching))
     matching.append((max1,max2,max3))
 
 
@@ -195,7 +209,7 @@ def dynamic_merge(mapping):
             subscore,subpath=dynamic_program(matching[i],matching[i+1],mapping)
             path.extend(subpath)
 	    sum=sum+subscore
-    print(sum)
+    #print(sum)
     new_path=[]
     [new_path.append(i) for i in path if not i in new_path]
     #print(new_path)
@@ -247,7 +261,8 @@ for seq in name3:
         name.append(seq)
 
 write_fasta(newAln_file,name,new_aln)
-subprocess.check_call(['rm','temp1','temp2','temp3','temp4','temp5','temp6'])
+#subprocess.check_call(['rm','temp1','temp2','temp3','temp4','temp5','temp6'])
+subprocess.check_call(['rm',fileAB,fileBC,fileCA,fileAB_fix,fileBC_fix,fileCA_fix])
 print('finish dynamic merging')
 
 
