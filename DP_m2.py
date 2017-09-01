@@ -192,7 +192,7 @@ def dynamic_program(start, end, mapping):
     #subpath.extend([end])
     subpath.append((end[0]-start[0],end[1]-start[1],end[2]-start[2]))
     #while list(subpath[0])!=list(start) and list(subpath[0])!=[-1,-1,-1]:
-    while list(subpath[0])!=[-1,-1,-1]:
+    while list(subpath[0])!=[-1,-1,-1] and list(subpath[0])!=[0,0,0]:
        #print("subpath: ")
        #print(subpath[0])
        #print("trace back:")
@@ -293,7 +293,7 @@ def dynamic_merge(mapping):
     return seq1,seq2,seq3
 
 sq1,sq2,sq3=dynamic_merge(M_ABC)
-print(sq1)
+#print(sq1)
 
 name1,align1=read_fasta(fileA)
 name2,align2=read_fasta(fileB)
