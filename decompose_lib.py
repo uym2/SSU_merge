@@ -272,7 +272,7 @@ def decompose_by_diameter(a_tree,strategy,max_size=None,min_size=None,max_diam=N
         if e2 is None:
              #__clean_up__(t2)            
              #treeMap.append((e.head_node,'r'+str(r)+'d1'))
-             name = 'r' + str(r) + 'd1'
+             name = 'r' + str(r) + 'd2'
              e.head_node.name = name
              treeMap[name] = e.head_node
         #else:
@@ -280,7 +280,7 @@ def decompose_by_diameter(a_tree,strategy,max_size=None,min_size=None,max_diam=N
         if e1 is None:
              #__clean_up__(t1)
              #treeMap.append((node,'r'+str(r)+'d2'))
-             name = 'r' + str(r) + 'd2'
+             name = 'r' + str(r) + 'd1'
              node.name = name
              treeMap[name] = node
         #else:
