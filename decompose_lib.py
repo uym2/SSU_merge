@@ -42,7 +42,7 @@ def decompose_by_diameter(a_tree,strategy,max_size=None,min_size=None,max_diam=N
             for ch in u.child_node_iter():
                 if ch.marked:
                     continue
-                if ch.nleaf > max_child_nleaf:
+                if ch.nleaf >= max_child_nleaf:
                     max_child_nleaf = ch.nleaf
                     max_child = ch
             acc_nleaf += (u.nleaf-max_child.nleaf)
@@ -294,6 +294,39 @@ def decompose_by_diameter(a_tree,strategy,max_size=None,min_size=None,max_diam=N
         r = r+1
     
     return treeMap
+
+def place_group_onto_tree(a_tree,grouping):
+    treeMap = {}
+    for node in a_tree.postorder_node_iter():
+        if node.is_leaf():
+            node.name = grouping[node.taxon.label]
+            node.nleaf = 1
+        else:
+            node.name = None
+            node.nleaf = 0
+            children_names = {}
+            for ch in node.child_node_iter():
+                if not ch.marked and ch.name is not None::
+                      children_names[ch.name] = [ch] if ch.name not in children_names else children_names[ch.name].append(ch)
+            if len(children_names.keys()) == 1:
+                node.name = children_names.keys()[0]
+            else:
+                for name in children_names:
+                    if len(children_names[name]) > 1:
+                        node.name = name
+                        node.marked = True
+                        treeMap[name] = node
+                    else:
+                        ch = children_names[name][0]
+                        ch.marked = True 
+                        treeMap[name] = ch
+        # compute nleaf
+           for ch in node.child_node_iter():
+               if not ch.marked:
+                   node.nleaf += ch.nleaf
+    treeMap[a_tree.seed_node.name] = a_tree.seed_node
+    return treeMap                   
+
 
 def compute_group_distance_matrix(a_tree,treeMap):
 # This function should be call AFTER the tree was decomposed and annotated (see decompose_by_diameter(...))
