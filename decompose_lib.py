@@ -301,15 +301,19 @@ def place_group_onto_tree(a_tree,grouping):
             node.groups = set([grouping[node.taxon.label]])
         else:
             children = node.child_nodes()
-            S_union = set([])
+            S_union = children[0].groups
             S_intersect = children[0].groups
-            for child in children:
-                S_intersect = S_intersect & child.groups
+            for child in children[1:]:
+                S_intersect = S_union & child.groups
+                if len(S_intersect) > 0:
+                    break
                 S_union = S_union | child.groups
+            
             if len(S_intersect) == 0:
                 node.groups = S_union
             else:
                 node.groups = S_intersect
+               
 
     # Prepare root: break-tie arbitrarily if there are multiple groups at root
     root_name = a_tree.seed_node.groups.pop()
@@ -323,13 +327,18 @@ def place_group_onto_tree(a_tree,grouping):
     	for ch in node.child_node_iter():
             if len(ch.groups & node.groups) > 0:
                 ch.groups = ch.groups & node.groups
-	    ch.name = list(ch.groups)[0]
+            ch.name = list(ch.groups)[0]
 	  
+    count = 0  
     for edge in a_tree.preorder_edge_iter():
-        if edge.tail_node is not None and edge.tail_node.name != edge.head_node.name:
-	    node = edge.head_node
-	    node.marked = True
-	    treeMap[node.name] = node			
+        if (edge.tail_node is not None) and (edge.tail_node.name != edge.head_node.name):
+            count += 1
+            node = edge.head_node
+            node.marked = True
+            if node.name in treeMap:
+                print(treeMap[node.name].parent_node.name)
+                print(node.parent_node.name)
+            treeMap[node.name] = node			
     
     # compute nleaf    
     for node in a_tree.postorder_node_iter():
@@ -341,7 +350,17 @@ def place_group_onto_tree(a_tree,grouping):
             if ch.marked:
                 continue
             node.nleaf += ch.nleaf
- 
+    
+    '''
+    count = 0
+    for node in a_tree.postorder_node_iter():
+        if node.marked:
+            count += 1
+    '''
+
+    print(count)
+    print(len(treeMap.keys()))
+
     return treeMap                   
 
 

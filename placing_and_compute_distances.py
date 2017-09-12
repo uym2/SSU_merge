@@ -34,9 +34,9 @@ D = compute_group_distance_matrix(t,treeMap)
 
 with open(distance_file,'w') as f:
     for A,B in D:
-	print(A)
-	print(B)
-	print(str(D[(A,B)]))
+	#print(A)
+	#print(B)
+	#print(str(D[(A,B)]))
         f.write(A + " " + B + " " + str(D[(A,B)]) + "\n")
 
 with open(nleaf_file,'w') as f:
