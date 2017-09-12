@@ -9,9 +9,7 @@ try:
 except:
     from Queue import Queue # python 2
 #from tree import PhylogeneticTree
-from sepp import get_logger
 
-_LOG = get_logger(__name__)
 
 def decompose_by_diameter(a_tree,strategy,max_size=None,min_size=None,max_diam=None):
     def __ini_record__():
@@ -159,7 +157,6 @@ def decompose_by_diameter(a_tree,strategy,max_size=None,min_size=None,max_diam=N
         elif edge_type == 'centroid':
             e = __find_centroid_edge__(seed_node)
         else:
-            _LOG.warning("Invalid decomposition type! Please use either 'midpoint' or 'centroid'")
             return None
 
         n = e.head_node.nleaf
@@ -190,7 +187,6 @@ def decompose_by_diameter(a_tree,strategy,max_size=None,min_size=None,max_diam=N
         else:
             raise Exception("strategy not valid: %s" %strategy)
 
-    _LOG.debug("Starting brlen decomposition ...")
     #tqueue = Queue()
     tstk = []
     __ini_record__()
@@ -319,19 +315,33 @@ def place_group_onto_tree(a_tree,grouping):
     root_name = a_tree.seed_node.groups.pop()
     a_tree.seed_node.name = root_name
     a_tree.seed_node.marked = True
-    a_tree.seed_node.groups = set([name])
-    treeMap[name] = a_tree.seed_node
+    a_tree.seed_node.groups = set([root_name])
+    treeMap[root_name] = a_tree.seed_node
 
     # Top down: resolve groups and mark bridged nodes
     for node in a_tree.preorder_node_iter():
-        for ch in node.child_node_iter():
-            if len(ch.groups) > 1:
+    	for ch in node.child_node_iter():
+            if len(ch.groups & node.groups) > 0:
                 ch.groups = ch.groups & node.groups
-            if len(ch.groups & node.groups) == 0:
-                ch.marked = True
-                ch.name = list(ch.groups)[0]
-                treeMap[ch.name] = ch
-            
+	    ch.name = list(ch.groups)[0]
+	  
+    for edge in a_tree.preorder_edge_iter():
+        if edge.tail_node is not None and edge.tail_node.name != edge.head_node.name:
+	    node = edge.head_node
+	    node.marked = True
+	    treeMap[node.name] = node			
+    
+    # compute nleaf    
+    for node in a_tree.postorder_node_iter():
+	if node.is_leaf():
+	    node.nleaf = 1
+	    continue
+        node.nleaf = 0
+        for ch in node.child_node_iter():
+            if ch.marked:
+                continue
+            node.nleaf += ch.nleaf
+ 
     return treeMap                   
 
 
