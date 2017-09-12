@@ -297,34 +297,41 @@ def decompose_by_diameter(a_tree,strategy,max_size=None,min_size=None,max_diam=N
 
 def place_group_onto_tree(a_tree,grouping):
     treeMap = {}
+
+    # Bottom up: find candidate groups for each node
     for node in a_tree.postorder_node_iter():
+        node.marked = False
         if node.is_leaf():
-            node.name = grouping[node.taxon.label]
-            node.nleaf = 1
+            node.groups = set([grouping[node.taxon.label]])
         else:
-            node.name = None
-            node.nleaf = 0
-            children_names = {}
-            for ch in node.child_node_iter():
-                if not ch.marked and ch.name is not None::
-                      children_names[ch.name] = [ch] if ch.name not in children_names else children_names[ch.name].append(ch)
-            if len(children_names.keys()) == 1:
-                node.name = children_names.keys()[0]
+            children = node.child_nodes()
+            S_union = set([])
+            S_intersect = children[0].groups
+            for child in children:
+                S_intersect = S_intersect & child.groups
+                S_union = S_union | child.groups
+            if len(S_intersect) == 0:
+                node.groups = S_union
             else:
-                for name in children_names:
-                    if len(children_names[name]) > 1:
-                        node.name = name
-                        node.marked = True
-                        treeMap[name] = node
-                    else:
-                        ch = children_names[name][0]
-                        ch.marked = True 
-                        treeMap[name] = ch
-        # compute nleaf
-           for ch in node.child_node_iter():
-               if not ch.marked:
-                   node.nleaf += ch.nleaf
-    treeMap[a_tree.seed_node.name] = a_tree.seed_node
+                node.groups = S_intersect
+
+    # Prepare root: break-tie arbitrarily if there are multiple groups at root
+    root_name = a_tree.seed_node.groups.pop()
+    a_tree.seed_node.name = root_name
+    a_tree.seed_node.marked = True
+    a_tree.seed_node.groups = set([name])
+    treeMap[name] = a_tree.seed_node
+
+    # Top down: resolve groups and mark bridged nodes
+    for node in a_tree.preorder_node_iter():
+        for ch in node.child_node_iter():
+            if len(ch.groups) > 1:
+                ch.groups = ch.groups & node.groups
+            if len(ch.groups & node.groups) == 0:
+                ch.marked = True
+                ch.name = list(ch.groups)[0]
+                treeMap[ch.name] = ch
+            
     return treeMap                   
 
 
