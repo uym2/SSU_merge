@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 from dendropy import Tree
 #from tree import PhylogeneticTree
 from decompose_lib import decompose_by_diameter, compute_group_distance_matrix,place_group_onto_tree 
@@ -34,13 +36,10 @@ D = compute_group_distance_matrix(t,treeMap)
 
 with open(distance_file,'w') as f:
     for A,B in D:
-	#print(A)
-	#print(B)
-	#print(str(D[(A,B)]))
         f.write(A + " " + B + " " + str(D[(A,B)]) + "\n")
 
 with open(nleaf_file,'w') as f:
-    for name in treeMap:
+    for name in sorted(treeMap):
         node = treeMap[name]
         f.write(name +  " " + str(node.nleaf) + "\n")
 	#print(name + " " + str(node.nleaf) + "\n")
